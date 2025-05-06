@@ -1,5 +1,6 @@
 const db = require('../config/db');
 const { v4: uuidv4 } = require('uuid');
+const { get } = require('../routes/category_course_route');
 
 const insertCategoryCourse = async (data) => {
     const id = uuidv4();
@@ -10,7 +11,22 @@ const insertCategoryCourse = async (data) => {
     return{id, result};
 }
 
+const getCategoryCourse = async ( ) => {
+    const query = 'SELECT * FROM category_course';
+    const [result] = await db.query(query);
+    return result;
+}
+
+const getCategoryCourseById = async (id) => {
+    const query = 'SELECT * FROM category_course WHERE id_category = ?';
+    const values = [id];
+    const [result] = await db.query(query, values);
+    return result;
+}
+
 module.exports = {
-    insertCategoryCourse
+    getCategoryCourse,
+    insertCategoryCourse,
+    getCategoryCourseById
 }
 
