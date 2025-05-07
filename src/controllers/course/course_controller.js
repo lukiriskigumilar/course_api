@@ -1,5 +1,5 @@
-const course_service = require('../services/course_service');
-const { customResponse } = require('../utils/custom_response');
+const course_service = require('../../services/course/course_service');
+const { customResponse } = require('../../utils/custom_response');
 
 
 const insertCourse = async (req, res) =>{

@@ -1,6 +1,5 @@
-const db = require('../config/db');
+const db = require('../../config/db');
 const { v4: uuidv4 } = require('uuid');
-const { get } = require('../routes/category_course_route');
 
 const insertCategoryCourse = async (data) => {
     const id = uuidv4();
