@@ -1,0 +1,276 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model category_course {
+  id_category String    @id @db.Char(36)
+  name        String    @db.VarChar(255)
+  created_at  DateTime  @default(now()) @db.Timestamp(0)
+  deleted_at  DateTime? @db.Timestamp(0)
+  updated_at  DateTime? @db.Timestamp(0)
+  courses     courses[]
+}
+
+/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
+model course_discount {
+  id_course_discount String    @id @db.Char(36)
+  id_course          String    @db.Char(36)
+  name               String    @db.VarChar(255)
+  discount_percent   Decimal   @db.Decimal(8, 2)
+  star_date          DateTime  @db.Timestamp(0)
+  end_date           DateTime  @db.Timestamp(0)
+  created_at         DateTime  @db.Timestamp(0)
+  updated_at         DateTime? @db.Timestamp(0)
+  deleted_at         DateTime? @db.Timestamp(0)
+  courses            courses   @relation(fields: [id_course], references: [id_course], onDelete: NoAction, onUpdate: NoAction, map: "course_discount_id_course_foreign")
+
+  @@index([id_course], map: "course_discount_id_course_foreign")
+}
+
+/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
+model course_users {
+  id__course_user String            @id @map("id_ course_user") @db.Char(36)
+  id_user         String            @db.Char(36)
+  id_course       String            @db.Char(36)
+  id_order        String            @db.Char(36)
+  progres_course  Int
+  status          String            @default("Active") @db.VarChar(255)
+  started_coursed DateTime          @db.DateTime(0)
+  finished_course DateTime          @db.DateTime(0)
+  created_at      DateTime          @db.Timestamp(0)
+  updated_at      DateTime?         @db.Timestamp(0)
+  deleted_at      DateTime?         @db.Timestamp(0)
+  courses         courses           @relation(fields: [id_course], references: [id_course], onDelete: NoAction, onUpdate: NoAction, map: "course_users_id_course_foreign")
+  orders          orders            @relation(fields: [id_order], references: [id_order], onDelete: NoAction, onUpdate: NoAction, map: "course_users_id_order_foreign")
+  user            users             @relation(fields: [id_user], references: [id_user], onDelete: NoAction, onUpdate: NoAction, map: "course_users_id_user_foreign")
+  pretests_result pretests_result[]
+  quiz_results    quiz_results[]
+  reviews         reviews[]
+
+  @@index([id_course], map: "course_users_id_course_foreign")
+  @@index([id_order], map: "course_users_id_order_foreign")
+  @@index([id_user], map: "course_users_id_user_foreign")
+}
+
+/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
+model courses {
+  id_course         String              @id @db.Char(36)
+  id_tutor          String              @db.Char(36)
+  id_category       String              @db.Char(36)
+  title             String              @db.VarChar(255)
+  description       String              @db.VarChar(255)
+  image_url         String              @db.VarChar(255)
+  price             Int
+  duration          Int
+  language          String              @db.VarChar(255)
+  included          Json
+  avg_rating        Float
+  total_review      Int
+  created_at        DateTime            @default(now()) @db.Timestamp(0)
+  updated_at        DateTime?           @db.Timestamp(0)
+  deleted_at        DateTime?           @db.Timestamp(0)
+  course_discount   course_discount[]
+  course_users      course_users[]
+  category_course   category_course     @relation(fields: [id_category], references: [id_category], onDelete: NoAction, onUpdate: NoAction, map: "courses_id_category_foreign")
+  tutors            tutors              @relation(fields: [id_tutor], references: [id_tutor], onDelete: NoAction, onUpdate: NoAction, map: "courses_id_tutor_foreign")
+  moduls            moduls[]
+  orders            orders[]
+  pretest_questions pretest_questions[]
+
+  @@index([id_category], map: "courses_id_category_foreign")
+  @@index([id_tutor], map: "courses_id_tutor_foreign")
+}
+
+/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
+model materials {
+  id_material    String           @id @db.Char(36)
+  id_modul       String           @db.Char(36)
+  tittle         String           @db.VarChar(255)
+  type           materials_type
+  content_url    String?          @db.VarChar(255)
+  content_text   String?          @db.Text
+  duration       Int
+  created_at     DateTime         @db.Timestamp(0)
+  updated_at     DateTime?        @db.Timestamp(0)
+  deleted_at     DateTime?        @db.Timestamp(0)
+  moduls         moduls           @relation(fields: [id_modul], references: [id_modul], onDelete: NoAction, onUpdate: NoAction, map: "materials_id_modul_foreign")
+  quiz_questions quiz_questions[]
+  quiz_results   quiz_results[]
+
+  @@index([id_modul], map: "materials_id_modul_foreign")
+}
+
+model moduls {
+  id_modul   String      @id @db.Char(36)
+  title      String      @db.VarChar(255)
+  id_course  String      @db.Char(36)
+  created_at DateTime    @db.Timestamp(0)
+  updated_at DateTime?   @db.Timestamp(0)
+  deleted_at DateTime?   @db.Timestamp(0)
+  materials  materials[]
+  courses    courses     @relation(fields: [id_course], references: [id_course], onDelete: NoAction, onUpdate: NoAction, map: "moduls_id_course_foreign")
+
+  @@index([id_course], map: "moduls_id_course_foreign")
+}
+
+model orders {
+  id_order          String         @id @db.Char(36)
+  id_user           String         @db.Char(36)
+  id_course         String         @db.Char(36)
+  invoice_number    String         @unique(map: "orders_invoice_number_unique") @db.VarChar(255)
+  price_at_order    Int
+  discount_at_order Float
+  final_price       Int
+  description       String?        @db.VarChar(255)
+  created_at        DateTime       @db.Timestamp(0)
+  updated_at        DateTime?      @db.Timestamp(0)
+  deleted_at        DateTime?      @db.Timestamp(0)
+  course_users      course_users[]
+  courses           courses        @relation(fields: [id_course], references: [id_course], onDelete: NoAction, onUpdate: NoAction, map: "orders_id_course_foreign")
+  user              users          @relation(fields: [id_user], references: [id_user], onDelete: NoAction, onUpdate: NoAction, map: "orders_id_user_foreign")
+  payments          payments[]
+
+  @@index([id_course], map: "orders_id_course_foreign")
+  @@index([id_user], map: "orders_id_user_foreign")
+}
+
+/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
+model payments {
+  id_payment     String                  @id @db.Char(36)
+  id_order       String                  @db.Char(36)
+  status         String                  @db.VarChar(255)
+  provider       String                  @db.VarChar(255)
+  payment_method payments_payment_method
+  account_number Int
+  account_name   String                  @db.VarChar(255)
+  max_duration   DateTime                @db.Timestamp(0)
+  paid_at        DateTime?               @db.Timestamp(0)
+  description    String?                 @db.VarChar(255)
+  transaction_id String                  @unique(map: "payments_transaction_id_unique") @db.VarChar(255)
+  created_at     DateTime                @db.Timestamp(0)
+  updated_at     DateTime?               @db.Timestamp(0)
+  orders         orders                  @relation(fields: [id_order], references: [id_order], onDelete: NoAction, onUpdate: NoAction, map: "payments_id_order_foreign")
+
+  @@index([id_order], map: "payments_id_order_foreign")
+}
+
+model pretest_questions {
+  id_pretest_question String    @id @db.Char(36)
+  id_course           String    @db.Char(36)
+  question_text       String    @db.Text
+  options             Json
+  correct_answer      String    @db.VarChar(255)
+  created_at          DateTime? @db.Timestamp(0)
+  updated_at          BigInt?
+  courses             courses   @relation(fields: [id_course], references: [id_course], onDelete: NoAction, onUpdate: NoAction, map: "pretest_questions_id_course_foreign")
+
+  @@index([id_course], map: "pretest_questions_id_course_foreign")
+}
+
+model pretests_result {
+  id_pretest     String       @id @db.Char(36)
+  id_course_user String       @db.Char(36)
+  score          Int
+  attempt_number Int
+  total_question Int          @db.SmallInt
+  correct_answer Int          @db.SmallInt
+  wrong_answer   Int          @db.SmallInt
+  start_time     BigInt
+  duration_max   BigInt
+  has_passed     Boolean
+  created_at     DateTime     @db.Timestamp(0)
+  course_users   course_users @relation(fields: [id_course_user], references: [id__course_user], onDelete: NoAction, onUpdate: NoAction, map: "pretests_result_id_course_user_foreign")
+
+  @@index([id_course_user], map: "pretests_result_id_course_user_foreign")
+}
+
+/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
+model quiz_questions {
+  id_quiz_question String    @id @db.Char(36)
+  id_material      String    @db.Char(36)
+  question_text    String    @db.Text
+  options          Json
+  correct_answer   String    @db.VarChar(255)
+  created_at       DateTime  @db.Timestamp(0)
+  updated_at       DateTime? @db.Timestamp(0)
+  deleted_at       DateTime? @db.Timestamp(0)
+  materials        materials @relation(fields: [id_material], references: [id_material], onDelete: NoAction, onUpdate: NoAction, map: "quiz_questions_id_material_foreign")
+
+  @@index([id_material], map: "quiz_questions_id_material_foreign")
+}
+
+model quiz_results {
+  id_quiz_result   String       @id @db.Char(36)
+  id_material      String       @db.Char(36)
+  id_course_user   String       @db.Char(36)
+  score            Int          @db.SmallInt
+  attemp_numberint Int
+  total_question   Int          @db.SmallInt
+  correct_answer   Int          @db.SmallInt
+  weong_answer     Int          @db.SmallInt
+  taken_at         DateTime     @db.Timestamp(0)
+  duration_max     Int
+  has_passed       Boolean
+  created_at       DateTime     @db.Timestamp(0)
+  course_users     course_users @relation(fields: [id_course_user], references: [id__course_user], onDelete: NoAction, onUpdate: NoAction, map: "quiz_results_id_course_user_foreign")
+  materials        materials    @relation(fields: [id_material], references: [id_material], onDelete: NoAction, onUpdate: NoAction, map: "quiz_results_id_material_foreign")
+
+  @@index([id_course_user], map: "quiz_results_id_course_user_foreign")
+  @@index([id_material], map: "quiz_results_id_material_foreign")
+}
+
+model reviews {
+  id_review      String       @id @db.Char(36)
+  id_course_user String       @db.Char(36)
+  rating         Float
+  commnet        String       @db.Text
+  crated_at      DateTime     @db.Timestamp(0)
+  updated_at     DateTime?    @db.Timestamp(0)
+  deleted_at     DateTime?    @db.Timestamp(0)
+  course_users   course_users @relation(fields: [id_course_user], references: [id__course_user], onDelete: NoAction, onUpdate: NoAction, map: "reviews_id_course_user_foreign")
+
+  @@index([id_course_user], map: "reviews_id_course_user_foreign")
+}
+
+model tutors {
+  id_tutor   String    @id @db.Char(36)
+  avatar_url String    @db.VarChar(255)
+  name       String    @db.VarChar(255)
+  jobs       String    @db.VarChar(255)
+  work_at    String    @db.VarChar(255)
+  created_at DateTime  @default(now()) @db.Timestamp(0)
+  updated_at DateTime? @db.Timestamp(0)
+  deleted_at DateTime? @db.Timestamp(0)
+  courses    courses[]
+}
+
+model users {
+  id_user                    String         @id @db.Char(36)
+  profile_url                String         @db.VarChar(255)
+  name                       String         @db.VarChar(255)
+  email                      String         @unique(map: "user_email_unique") @db.VarChar(255)
+  password                   String         @db.VarChar(255)
+  phone                      String         @unique(map: "users_phone_IDX") @db.VarChar(255)
+  role                       String         @default("student") @db.VarChar(255)
+  created_at                 DateTime       @default(now()) @db.Timestamp(0)
+  updated_at                 DateTime?      @db.Timestamp(0)
+  deleted_at                 DateTime?      @db.Timestamp(0)
+  email_verified             Boolean?
+  verification_token         String?        @db.Char(36)
+  verification_token_expires DateTime?      @db.Timestamp(0)
+  course_users               course_users[]
+  orders                     orders[]
+}
+
+enum materials_type {
+  EMPTY_ENUM_VALUE @map("")
+}
+
+enum payments_payment_method {
+  EMPTY_ENUM_VALUE @map("")
+}

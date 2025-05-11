@@ -1,17 +1,18 @@
-const express = require('express');
+import express from 'express';
+import { insertCourseController, getCoursesController, getCourseByIdController, patchCourseController, hardDeleteCourseController, handleMissingCourseId }
+ from '../../controllers/course/course_controller.js';
+
 const router = express.Router();
-const course_controller= require('../../controllers/course/course_controller');
 
-router.post('/courses', course_controller.insertCourse);
+router.post('/courses', insertCourseController);
 
-router.get('/courses', course_controller.getCourses);
-router.get('/courses/:id', course_controller.getCourseById);
+router.get('/courses', getCoursesController);
+router.get('/courses/:id', getCourseByIdController);
 
-router.patch('/courses/', course_controller.handleMissingCourseId);
-router.patch('/courses/:id', course_controller.patchCourse);
+router.patch('/courses', handleMissingCourseId);
+router.patch('/courses/:id', patchCourseController);
 
-router.delete('/courses', course_controller.handleMissingCourseId);
-router.delete('/courses/:id', course_controller.hardDeleteCourse);
+router.delete('/courses', handleMissingCourseId);
+router.delete('/courses/:id', hardDeleteCourseController);
 
-
-module.exports = router;
+export default router;

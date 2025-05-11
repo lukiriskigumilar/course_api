@@ -1,8 +1,10 @@
-exports.customResponse = (res, statusCode, message, data) => {
+const customResponse = (res, statusCode, message, data) => {
     const response = {
-        status: statusCode,
+        statusCode: statusCode,
         message: message,
         data: data
     };
     res.status(statusCode).json(response);
 }
+
+export { customResponse };

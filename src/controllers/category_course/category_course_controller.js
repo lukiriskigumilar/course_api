@@ -1,6 +1,5 @@
-const categoryCourse_service = require('../../services/category_course/category_course_service');
-const { customResponse } = require('../../utils/custom_response');
-
+import categoryCourse_service from '../../services/category_course/category_course_service.js';
+import { customResponse } from '../../utils/custom_response.js';
 
 const InsertCategoryCourse = async (req, res) => {
     try {
@@ -11,7 +10,7 @@ const InsertCategoryCourse = async (req, res) => {
     } catch (error) {
         customResponse(res, 500, 'Internal Server Error', error.message);
     }
-}
+};
 
 const getCategoryCourse = async (req, res) => {
     try {
@@ -21,7 +20,7 @@ const getCategoryCourse = async (req, res) => {
     } catch (error) {
         customResponse(res, 500, 'Internal Server Error', error.message);
     }
-}
+};
 
 const getCategoryCourseById = async (req, res) => {
     const id = req.params.id;
@@ -33,15 +32,17 @@ const getCategoryCourseById = async (req, res) => {
         const result = await categoryCourse_service.getCategoryCourseById(id);
         if (result.length === 0) {
             customResponse(res, 404, 'Category Course Not Found', null);
+            return;
         }
         const message = 'Category Course Retrieved Successfully';
         customResponse(res, 200, message, result);
     } catch (error) {
         customResponse(res, 500, 'Internal Server Error', error.message);
     }
-}
-module.exports = {
+};
+
+export default {
     InsertCategoryCourse,
     getCategoryCourse,
     getCategoryCourseById,
-}
+};

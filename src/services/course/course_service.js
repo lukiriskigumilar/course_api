@@ -1,7 +1,5 @@
-const db = require('../../config/db');
-const { v4: uuidv4 } = require('uuid');
-
-
+import { v4 as uuidv4 } from 'uuid';
+import db from '../../config/db.js'
 
 const insertCourse = async (data) => {
     const idcourse = uuidv4();
@@ -52,10 +50,10 @@ const patchCourse = async (id, data) => {
         }
     }
 
-    sql = `UPDATE courses SET ${fields.join(', ')} WHERE id_course = ?`;
+    const sql = `UPDATE courses SET ${fields.join(', ')} WHERE id_course = ?`;
     values.push(id)
     const [result] = await db.query(sql, values);
-    return {id, result};
+    return { id, result };
 }
 
 const hardDeleteCourse = async (id) => {
@@ -65,15 +63,10 @@ const hardDeleteCourse = async (id) => {
     return result;
 }
 
-
-
-
-
-module.exports = {
+export {
     insertCourse,
     getCourses,
     getCourseById,
     hardDeleteCourse,
     patchCourse
-
-}
+};
