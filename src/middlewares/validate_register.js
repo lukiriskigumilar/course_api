@@ -1,3 +1,4 @@
+import {customResponse} from '../utils/custom_response.js';
 import {body, validationResult} from 'express-validator';
  const validateRegister = [
     body('name')
@@ -27,7 +28,7 @@ import {body, validationResult} from 'express-validator';
     (req, res, next) => {
         const errors = validationResult(req);
         if (!errors.isEmpty()) {
-            return res.status(400).json({errors: errors.array()});
+           return customResponse(res, 400, 'Validation Error', errors.array());
         }
         next();
     },
