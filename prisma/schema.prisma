@@ -251,7 +251,7 @@ model tutors {
 
 model users {
   id_user                    String         @id @db.Char(36)
-  profile_url                String         @db.VarChar(255)
+  profile_url                String?        @db.VarChar(255)
   name                       String         @db.VarChar(255)
   email                      String         @unique(map: "user_email_unique") @db.VarChar(255)
   password                   String         @db.VarChar(255)

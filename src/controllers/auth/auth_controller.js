@@ -11,15 +11,14 @@ const registerUserController = async (req, res) => {
         });
         customResponse(res, 201, 'Registration successful! Please verify your email. The verification link is valid for 30 minutes', null);
     } catch (error) {
-        const statusCode = error.message.includes('already exists') ? 400 : 500;
-        customResponse(res, statusCode, 'Error registering user', error.message);
+        const statusCode = error.statusCode || 500;
+        customResponse(res, statusCode, error.message || error.message, null);
 
     }
 }
 
 const verifyEmailController = async (req, res) => {
     const token = req.params.token;
-    console.log(token);
     try {
         const result = await authService.verifyEmailService(token);
         customResponse(res, 200, 'Email verified successfully', null);

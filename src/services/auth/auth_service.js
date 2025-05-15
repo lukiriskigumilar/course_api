@@ -20,6 +20,13 @@ const registerUserService = async (data) => {
         role,
         profile_url,
     } = data;
+    const finalRole = role === '' ? 'student' : role;
+    const roleRegex = /^(administrator|student)$/;
+    if (!finalRole.match(roleRegex)) {
+        const error = new Error('Invalid role provided. Role must be either "administrator" or "student".');
+        error.statusCode = 400;
+        throw error;
+    }
     const existingUser = await prisma.users.findFirst({
         where: {
             OR: [{ email }, { phone }]
@@ -27,7 +34,9 @@ const registerUserService = async (data) => {
     });
     if (existingUser) {
         const confictedField = existingUser.email === email ? 'email addres' : 'phone number';
-        throw new Error(`${confictedField} already exists`);
+        const error = new Error(`${confictedField} already exists`)
+        error.statusCode = 409;
+        throw error
     }
     const hashedPassword = await bcrypt.hash(password, 10);
     const verification_token = uuidv4();
@@ -41,7 +50,7 @@ const registerUserService = async (data) => {
             email,
             password: hashedPassword,
             phone,
-            role,
+            role: finalRole,
             profile_url,
             email_verified,
             verification_token,
@@ -51,6 +60,8 @@ const registerUserService = async (data) => {
     return newUser;
 }
 
+
+
 const resendVerificationEmailService = async (email) => {
     const user = await prisma.users.findFirst({
         where: {
@@ -58,9 +69,11 @@ const resendVerificationEmailService = async (email) => {
         }
     })
     if (!user) {
+
         throw new Error('User not found');
     }
     if (user.email_verified) {
+        error.statusCode = 404;
         throw new Error('Email already verified');
     }
     const verification_token = uuidv4();
@@ -163,10 +176,10 @@ const loginUserService = async (data) => {
         {
             expiresIn: '1h'
         })
-    const { password: _, verification_token, verification_token_expires, created_at, updated_at, deleted_at, email_verified, ...safeUser} = user
+    const { password: _, verification_token, verification_token_expires, created_at, updated_at, deleted_at, email_verified, ...safeUser } = user
     return {
         accessToken,
-       user: safeUser
+        user: safeUser
     };
 }
 
