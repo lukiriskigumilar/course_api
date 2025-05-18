@@ -5,6 +5,8 @@ import { transporter } from '../../utils/email.js';
 import jwt from 'jsonwebtoken';
 import dotenv from 'dotenv';
 dotenv.config();
+import streamifier from 'streamifier';
+import cloudinary from '../../utils/cloudinary.js';
 
 import { getVerificationTemplateEmail } from '../../utils/get_verfication_ template_email.js';
 
@@ -183,12 +185,37 @@ const loginUserService = async (data) => {
     };
 }
 
+const uploadProfileImagetoCloudinary = (filebuffer, folder = 'Profile_user_lmsVideo') => {
+    return new Promise((resolve, reject) => {
+        const stream = cloudinary.uploader.upload_stream(
+            { folder },
+            (error, result) => {
+                if (error) return reject(error);
+                resolve(result.secure_url);
+            }
+        );
+        streamifier.createReadStream(filebuffer).pipe(stream);
+    });
+};
+
+const uploadProfileImageService = async (userId, filebuffer) => {
+    const imageUrl = await uploadProfileImagetoCloudinary(filebuffer)
+    const result = await prisma.users.update({
+        where: { id_user: userId },
+        data: { profile_url: imageUrl }
+    })
+    return result
+    
+}
+
+
 
 export default {
     registerUserService,
     sendVerificationEmailService,
     verifyEmailService,
     resendVerificationEmailService,
-    loginUserService
+    loginUserService, 
+    uploadProfileImageService,
 
 }

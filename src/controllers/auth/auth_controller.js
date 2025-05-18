@@ -28,11 +28,11 @@ const verifyEmailController = async (req, res) => {
     }
 }
 
-const requestVerificationEmailController = async (req,res) =>{
+const requestVerificationEmailController = async (req, res) => {
 
-    const {email} = req.body;
+    const { email } = req.body;
     try {
-       const user = await authService.resendVerificationEmailService(email);
+        const user = await authService.resendVerificationEmailService(email);
         await authService.sendVerificationEmailService(user.email, user.verification_token, user.name).catch((error) => {
             throw new Error('Failed to send verification email', error.message);
         });
@@ -58,9 +58,26 @@ const loginUserController = async (req, res) => {
     }
 }
 
+const uploadProfileImageController = async (req, res) => {
+    try {
+        const userId = req.user.id_user
+        const image = req.file.buffer
+        const result = await authService.uploadProfileImageService(userId, image);
+        if (result) {
+            customResponse(res, 200, 'upload image succsesfull', null);
+        }
+
+
+    } catch (error) {
+        const statusCode = error.statusCode || 500;
+        customResponse(res, statusCode, error.message || 'upload image fail', null);
+    }
+}
+
 export default {
     registerUserController,
     verifyEmailController,
     requestVerificationEmailController,
     loginUserController,
+    uploadProfileImageController,
 }
