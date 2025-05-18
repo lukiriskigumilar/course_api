@@ -1,9 +1,13 @@
-const customResponse = (res, statusCode, message, data) => {
+const customResponse = (res, statusCode, message, data, count = null) => {
     const response = {
         statusCode: statusCode,
         message: message,
-        data: data
     };
+    if(count != null && count != undefined) {
+        response.count = count;
+    }
+    response.data = data;
+
     res.status(statusCode).json(response);
 }
 

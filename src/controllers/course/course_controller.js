@@ -13,14 +13,15 @@ const insertCourseController = async (req, res) => {
 };
 
 const getCoursesController = async (req, res) => {
+    const query = req.query;
     try {
-        const result = await getCourses();
+        const result = await getCourses(query);
         if (!result || result.length === 0) {
-            customResponse(res, 200, 'No course data available.', []);
+            customResponse(res, 404, 'No course data available.', null);
             return;
         }
         const message = 'Course Retrieved Successfully';
-        customResponse(res, 200, message, result);
+        customResponse(res, 200, message, result, result.length);
 
     } catch (error) {
         customResponse(res, 500, 'Internal Server Error', error.message);

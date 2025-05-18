@@ -41,7 +41,7 @@ const registerUserService = async (data) => {
     const hashedPassword = await bcrypt.hash(password, 10);
     const verification_token = uuidv4();
     const email_verified = false;
-    const verification_token_expires = new Date(Date.now() + 30 * 60 * 1000);
+    const verification_token_expires = new Date(Date.now() + 60 * 60 * 1000);
 
     const newUser = await prisma.users.create({
         data: {

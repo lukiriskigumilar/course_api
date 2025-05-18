@@ -1,5 +1,6 @@
 import { v4 as uuidv4 } from 'uuid';
 import db from '../../config/db.js'
+import prisma from '../../prisma/client.js';
 
 const insertCourse = async (data) => {
     const idcourse = uuidv4();
@@ -22,10 +23,32 @@ const insertCourse = async (data) => {
     return { idcourse, result };
 }
 
-const getCourses = async () => {
-    const sql = "SELECT * FROM courses";
-    const [result] = await db.query(sql);
-    return result;
+const getCourses = async (query) => {
+   const {
+    search,
+    order_by = 'created_at',
+    order = 'asc',
+    price_itself,
+    category
+   } = query;
+
+   const whereClause = {
+    title: search ? {contains: search.toString().toLowerCase()} : undefined,
+    price: price_itself ? { gte: price_itself } : undefined,
+    category_course: category ? {
+        name:{
+            contains: category.toString().toLowerCase()
+        }
+    } : undefined,
+}
+const result = await prisma.courses.findMany({
+   where: whereClause,
+    orderBy: {
+        [order_by]: order.toLowerCase() === 'asc' ? 'asc' : 'desc',
+    },
+})
+return result;
+
 }
 
 const getCourseById = async (id) => {
